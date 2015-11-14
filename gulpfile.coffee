@@ -54,6 +54,32 @@ getExcludeList = (roadMap)->
     .pluck 'exclude'
     .flatten().value()
 
+###
+ * 设置 packTask 过滤信息
+###
+packFilter = (config={})->
+    # 过滤列表
+    exports.packFilter = getExcludeList config.roadMap if not exports.packFilter and config.roadMap
+    exports.packFilter
+
+###
+ * js 打包任务
+ * @param {String} filePath 文件目录所在路径
+###
+packTask = (filePath) ->
+    srcPath = path.dirname filePath
+
+    gulp.src filePath
+        .pipe pack.combineFile(config, packFilter())
+        .pipe gulp.dest(path.join(srcPath, './dist'))
+        .pipe uglify()
+        .pipe rename((file) ->
+            file.path = file.path.replace 'all.js', 'all.min.js'
+            file
+        )
+        .pipe md5()
+        .pipe gulp.dest(path.join(srcPath, './dist'))
+
 
 ###
  * 执行初始化任务
@@ -78,37 +104,7 @@ gulp.task 'init', ->
             FS.write production, requirejs.generator(requirejs.getBaseConfig(config))
             FS.write dev, requirejs.generator(requirejs.getBaseDevConfig(config))
 
-###
- * 默认任务
- * @example
- *     gulp --path=path
-###
-# gulp.task 'default', ->
-#     sourePath = argv.path    
-#     throw new Error 'init task: path is null' if not sourePath
 
-#     getConfig path.join(sourePath, 'gis.json')
-#     .then (config) =>
-#         # excludeFilter = ['*']
-#         console.log sourePath
-#         # 监听文件列表
-#         watchPath = path.join sourePath, config.pack, '**/src/*.js'
-#         if config.roadMap
-#             excludeList = getExcludeList config.roadMap
-
-#             # unExcludeList = excludeList.map (v) ->
-#             #     '!' + v
-
-#             # unExcludeList.unshift '*'
-#             excludeFilter = gulpFilter jsExcludeFilter(excludeList),
-#                                 restore: true
-
-#         # console.log watchPath
-#         # console.log process.cwd()
-#         gulp.src watchPath
-#         .pipe excludeFilter
-#         .pipe pack.combineFile(config)
-#         .pipe gulp.dest path.join(sourePath, config.pack, 'dist')
 gulp.task 'default', ->
     sourePath = argv.path    
     throw new Error 'init task: path is null' if not sourePath
@@ -119,14 +115,8 @@ gulp.task 'default', ->
         # 监听文件列表
         srcPath = path.join sourePath, config.pack
 
-        if config.roadMap
-            # 过滤列表
-            filterList = getExcludeList config.roadMap
-
-            # unExcludeList = excludeList.map (v) ->
-            #     '!' + v
-
-            # unExcludeList.unshift '*'
+        # 过滤列表
+        packFilter config
 
         FS.stat srcPath
         .then (stat) ->
@@ -136,20 +126,4 @@ gulp.task 'default', ->
             list.forEach (v) ->
                 do (v)->
                     if v.indexOf('.') isnt 0
-                        # console.log path.join srcPath, v, 'src'
-                        gulp.src path.join srcPath, v, 'src'
-                        .pipe pack.combineFile(config, filterList)
-                        .pipe gulp.dest(path.join(srcPath, v, './dist'))
-                        .pipe uglify()
-                        .pipe rename((file) ->
-                            file.path = file.path.replace 'all.js', 'all.min.js'
-                            file
-                        )
-                        .pipe md5()
-                        .pipe gulp.dest(path.join(srcPath, v, './dist'))
-
-
-jsExcludeFilter = (filterList) ->
-    (file) ->
-        console.log file.path
-        not (file.path in filterList)
+                        packTask path.join srcPath, v, 'src'
