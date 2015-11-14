@@ -7,6 +7,7 @@ FS = require 'q-io/fs'
 _ = require 'lodash'
 
 baseConfigPath = path.join __dirname, 'gis.json'
+# console.log baseConfigPath
 configPath = ''
 
 config = ->

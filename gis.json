@@ -18,6 +18,9 @@
     "//": "tpl目录",
     "tpl": "./tpl",
 
+    "//": "tpl需不需要编译",
+    "tplBuild": true,
+
     "//": "sprite目录",
     "sprite": "./style/sprite_src",
     "spriteImg" : "./style/sprite",

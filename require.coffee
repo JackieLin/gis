@@ -31,12 +31,23 @@ generator = (configMsg) ->
     """
 
 ###
+ * 初始化 config 信息
+###
+init = (config) ->
+    config.requireObj = {}
+    config.requireConfig.paths = config.requireConfig.paths or {}
+    # 补全 require js baseUrl 的全路径
+    config.requireObj.baseUrl = path.join config.sourePath, config.requireConfig.baseUrl
+
+    config
+
+
+###
  * 设置配置文件信息
 ###
 exports.setConfig = (projectConfig) ->
     config = projectConfig
-    config.requireConfig.paths = config.requireConfig.paths or {}
-    config
+    init config
 
 
 ###
@@ -50,14 +61,17 @@ writeConfigFile = ->
     FS.write production, generator(getConfig(config.requireConfig))
     FS.write dev, generator(getDevConfig(config.requireConfig))
 
+
 ###
  * 重新生成 config 文件信息
 ###
-exports.rebuild = ->
+exports.rebuild = (fileKey)->
     through2.obj (file, enc, callback) ->
         baseName = path.basename file.path, '.js'
-        key = baseName.split('.')[0]
-        config.requireConfig.paths[key] = baseName
+        key = fileKey baseName
+
+        config.requireConfig.paths[key] = './' + path.join path.relative(config.requireObj.baseUrl or '', file.path), '../', baseName
+        
         # 重新写入配置文件
         writeConfigFile()
 

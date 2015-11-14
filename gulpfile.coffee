@@ -17,8 +17,10 @@ rename = require './rename'
 requirejs = require './require'
 # 过滤器
 gulpFilter = require 'gulp-filter'
-
+# js 打包
 pack = require './pack'
+# tpl 打包
+tpl = require './tpl'
 
 _ = require 'lodash'
 
@@ -62,6 +64,7 @@ packFilter = (config={})->
     exports.packFilter = getExcludeList config.roadMap if not exports.packFilter and config.roadMap
     exports.packFilter
 
+
 ###
  * js 打包任务
  * @param {String} filePath 文件目录所在路径
@@ -77,9 +80,67 @@ packTask = (filePath) ->
             file.path = file.path.replace 'all.js', 'all.min.js'
             file
         )
-        .pipe md5()
-        .pipe requirejs.rebuild()
+        .pipe md5(6)
+        .pipe requirejs.rebuild((baseName) ->
+            baseName.split('.')[0]
+        )
         .pipe gulp.dest(path.join(srcPath, './dist'))
+
+###
+ * 编译模板文件
+###
+tplTask = (filePath) ->
+    gulp.src filePath
+    .pipe tpl.build()
+
+
+###
+ * 构建对应的目录信息
+###
+buildPath = (srcPath, done)->
+    FS.stat srcPath
+    .then (stat) ->
+        throw new Error '%s srcPath is null', srcPath if stat.isDirectory() is false
+        FS.list srcPath
+    .then (list) ->
+        list.forEach (v) ->
+            do (v)->
+                if v.indexOf('.') isnt 0
+                    done v
+
+
+###
+ * 打包所有 js 目录
+###
+packAll = (config)->
+    # 监听文件列表
+    srcPath = path.join config.sourePath, config.pack
+
+    # 过滤列表
+    packFilter config
+
+    # 构建开始
+    buildPath srcPath, (v)->
+        packTask path.join srcPath, v, 'src'
+
+
+###
+ * 打包所有的模板文件
+###
+buildAllTpl = (config) ->
+    # 监听文件列表
+    srcPath = path.join config.sourePath, config.tpl
+    packPath = path.join config.sourePath, config.pack, '../'
+
+    # 构建开始
+    buildPath srcPath, (v)->
+        tplTask path.join srcPath, v
+        .pipe md5(6)
+        .pipe gulp.dest(path.join(packPath, './tpl'))
+        .pipe requirejs.rebuild((baseName) ->
+            'tpl/' + baseName.split('.')[0]
+        )
+
 
 
 ###
@@ -113,22 +174,10 @@ gulp.task 'default', ->
     getConfig path.join(sourePath, 'gis.json')
     .then (config) =>
         # console.log sourePath
-        # 监听文件列表
-        srcPath = path.join sourePath, config.pack
-
         # 设置 requirejs config 信息
         config.sourePath = sourePath
         requirejs.setConfig config
 
-        # 过滤列表
-        packFilter config
-
-        FS.stat srcPath
-        .then (stat) ->
-            throw new Error '%s srcPath is null', srcPath if stat.isDirectory() is false
-            FS.list srcPath
-        .then (list) ->
-            list.forEach (v) ->
-                do (v)->
-                    if v.indexOf('.') isnt 0
-                        packTask path.join srcPath, v, 'src'
+        packAll config
+        
+        buildAllTpl config if config.tplBuild
