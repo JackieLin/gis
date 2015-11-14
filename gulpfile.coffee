@@ -78,6 +78,7 @@ packTask = (filePath) ->
             file
         )
         .pipe md5()
+        .pipe requirejs.rebuild()
         .pipe gulp.dest(path.join(srcPath, './dist'))
 
 
@@ -91,6 +92,9 @@ gulp.task 'init', ->
     throw new Error 'init task: path is null' if not sourePath
     getConfig()
     .then (config) ->
+        config.sourePath = sourePath
+        requirejs.setConfig config
+
         FS.makeTree path.join sourePath, config.pack
         .then ->
             FS.makeTree path.join sourePath, config.sass
@@ -99,10 +103,7 @@ gulp.task 'init', ->
         .then ->
             FS.copy path.join(__dirname, 'gis.json'), path.join(sourePath, 'gis.json')
         .then ->
-            production = FS.join sourePath, config.configFile.production
-            dev = FS.join sourePath, config.configFile.dev
-            FS.write production, requirejs.generator(requirejs.getBaseConfig(config))
-            FS.write dev, requirejs.generator(requirejs.getBaseDevConfig(config))
+            requirejs.writeConfigFile()
 
 
 gulp.task 'default', ->
@@ -114,6 +115,10 @@ gulp.task 'default', ->
         # console.log sourePath
         # 监听文件列表
         srcPath = path.join sourePath, config.pack
+
+        # 设置 requirejs config 信息
+        config.sourePath = sourePath
+        requirejs.setConfig config
 
         # 过滤列表
         packFilter config
