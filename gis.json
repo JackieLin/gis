@@ -1,0 +1,52 @@
+{
+    "//": "自动打包的目录",
+    "pack": "./js/pack",
+    "roadMap": [
+        {
+            "path": "widget/src",
+            "exclude": ["aaa.js", "bbb.js", "ccc.js"]
+        }
+    ],
+
+    "//": "指定包的版本,注：如果没有指定，修改那个版本，就使用那个版本",
+    "packVersion": {
+        "mcore": "1.0.4"
+    },
+
+    "sass": "./style/sass",
+
+    "//": "tpl目录",
+    "tpl": "./tpl",
+
+    "//": "sprite目录",
+    "sprite": "./style/sprite_src",
+    "spriteImg" : "./style/sprite",
+    "spriteLess" : "./style/less",
+
+    "//": "requireJS 的配置",
+    "requireConfig": {
+        "baseUrl": "static/",
+        "paths": {
+            "mallRegionData": "./js/vendor/mallRegionData/1.0.0/mallRegionData",
+            "ftscroller": "./js/vendor/ftscroller/0.5.1/ftscroller",
+            "scroller": "./js/vendor/scroller/1.0.0/scroller.min",
+            "jquery": "./js/vendor/jquery/2.1.4/jquery-2.1.4.min",
+            "xss": "./js/vendor/xss/0.1.17/xss.min",
+            "md5": "./js/vendor/md5/1.1.0/md5.min",
+            "qrcode": "./js/vendor/qrcode/qrcode.min",
+            "moment": "./js/vendor/moment/2.9.0/moment.min",
+            "cookies": "./js/vendor/cookies/1.2.1/cookies.min",
+            "cropper": "./js/vendor/cropper/0.9.1/cropper.min",
+            "select2": "./js/vendor/select2/4.0.0/js/select2.min",
+            "webuploader": "./js/vendor/webuploader/0.1.5/webuploader.html5only.min",
+            "lodash": "./js/vendor/lodash/lodash.min",
+            "touch": "./js/vendor/touch/0.2.14/touch.min"
+        }
+    },
+
+    "//": "配置文件",
+    "configFile": {
+        "production": "./js/config.js",
+        "dev": "./js/config.dev.js"
+    }
+}
