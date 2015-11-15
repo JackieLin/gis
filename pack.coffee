@@ -9,25 +9,35 @@ FS = require "q-io/fs"
 path = require 'path'
 _ = require 'lodash'
 
+config = {}
+
+###
+ * 设置配置
+###
+exports.setConfig = (projectConfig) ->
+    config = projectConfig
+
+
 ###
  * 将对应目录的文件进行合并
 ###
-exports.combineFile = (config, filterList)->
+exports.combineFile = (filterList=[])->
     through2.obj (file, enc, callback) ->
         srcPath = file.path
         # console.log srcPath
-        # console.log path.join(srcPath, 'src')
         FS.stat srcPath
         .then (stat)->
             throw new Error '%s is not directory', srcPath if stat.isDirectory() is false
             FS.list srcPath
         .then (list) ->
             # console.log list
-            # 过滤出 js 文件
-            _.select list, (item) ->
-                path.extname(item) is '.js' and not (path.join(srcPath, item) in filterList)
+
+            # 过滤出 js 文件            
+            list.filter (item) ->
+                path.extname(item) is '.js' and path.join(srcPath, item) not in filterList and item.indexOf('.') isnt 0
 
         .then (list) ->
+            # console.log list
             hasIndex = false
             task = []
             # console.log list

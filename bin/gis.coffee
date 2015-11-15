@@ -19,11 +19,17 @@ proc
 if 'init' in _
     proc = spawn 'gulp', ['init', '--path=' + sourePath], 
             cwd: __dirname
+
+else if 'rebuild' in _
+    # 重新构建项目
+    proc = spawn 'gulp', ['rebuild', '--path=' + sourePath],
+        cwd: __dirname
+
 else
     # 默认情况
-    proc = spawn 'gulp', ['--path=' + sourePath],
+    proc = spawn 'gulp', ['watch', '--path=' + sourePath],
         cwd: __dirname
-        
+
 
 # 输出信息和错误信息
 if proc

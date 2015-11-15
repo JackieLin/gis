@@ -22,6 +22,9 @@ pack = require './pack'
 # tpl 打包
 tpl = require './tpl'
 
+# 删除
+deleteFile = require './deleteFile'
+
 _ = require 'lodash'
 
 through2 = require 'through2'
@@ -71,9 +74,10 @@ packFilter = (config={})->
 ###
 packTask = (filePath) ->
     srcPath = path.dirname filePath
-
+    # console.log srcPath
     gulp.src filePath
-        .pipe pack.combineFile(config, packFilter())
+        .pipe pack.combineFile(packFilter())
+        .pipe deleteFile(path.join(srcPath, './dist'))
         .pipe gulp.dest(path.join(srcPath, './dist'))
         .pipe uglify()
         .pipe rename((file) ->
@@ -81,10 +85,10 @@ packTask = (filePath) ->
             file
         )
         .pipe md5(6)
+        .pipe gulp.dest(path.join(srcPath, './dist'))
         .pipe requirejs.rebuild((baseName) ->
             baseName.split('.')[0]
         )
-        .pipe gulp.dest(path.join(srcPath, './dist'))
 
 ###
  * 编译模板文件
@@ -142,6 +146,21 @@ buildAllTpl = (config) ->
         )
 
 
+###
+ * 初始化任务
+###
+initTask = (sourePath) ->
+    srcPath = if sourePath then path.join(sourePath, 'gis.json') else ''
+
+    getConfig srcPath
+    .then (config) =>
+        # 设置 requirejs config 信息
+        config.sourePath = sourePath
+        requirejs.setConfig config
+        pack.setConfig config
+
+        config
+
 
 ###
  * 执行初始化任务
@@ -167,17 +186,25 @@ gulp.task 'init', ->
             requirejs.writeConfigFile()
 
 
-gulp.task 'default', ->
+gulp.task 'rebuild', ->
     sourePath = argv.path    
     throw new Error 'init task: path is null' if not sourePath
 
-    getConfig path.join(sourePath, 'gis.json')
-    .then (config) =>
-        # console.log sourePath
-        # 设置 requirejs config 信息
-        config.sourePath = sourePath
-        requirejs.setConfig config
-
+    initTask sourePath
+    .then (config) ->
         packAll config
-        
         buildAllTpl config if config.tplBuild
+
+
+gulp.task 'watch', ->
+    sourePath = argv.path    
+    throw new Error 'init task: path is null' if not sourePath
+
+    initTask sourePath
+    .then (config) =>
+        packPath = path.join sourePath, config.pack, '**/src/*.js'
+
+        gulp.watch packPath, (event) ->
+            filePath = path.dirname event.path
+            console.log event.path
+            packTask filePath
