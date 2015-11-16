@@ -13,7 +13,7 @@ path = require 'path'
 # 配置文件信息
 config = require './config'
 rename = require './rename'
-# 处理 requireJs 信息
+# 处理 requirejs 信息
 requirejs = require './require'
 # 过滤器
 gulpFilter = require 'gulp-filter'
@@ -103,7 +103,7 @@ packTask = (filePath, filter) ->
 ###
 tplTask = (filePath, packPath) ->
     baseName = path.basename filePath
-    
+
     gulp.src filePath
     .pipe deleteFile(path.join(packPath, './tpl', baseName))
     .pipe tpl.build()
@@ -165,11 +165,9 @@ buildAllTpl = (config) ->
 ###
 watchTpl = (tplPath, tplBuildPath, browserReload=false)->
     gulp.watch tplPath, (event) ->
+        console.log 'build tpl: %s', event.path
+
         filePath = path.dirname event.path
-        # return tplTask filePath, tplBuildPath if not browserReload
-        # (tplTask filePath, tplBuildPath
-        #     .pipe browserSync.stream()
-        # ) if browserReload
         tplTask filePath, tplBuildPath
 
 
@@ -219,6 +217,9 @@ gulp.task 'rebuild', ->
 
     initTask sourePath
     .then (config) ->
+        # 重新生成 config 文件
+        requirejs.writeConfigFile()
+        
         packAll config
         buildAllTpl config if config.tplBuild
 
@@ -240,6 +241,8 @@ gulp.task 'watch', ->
         ) if config.browserReload
 
         gulp.watch packPath, (event) ->
+            console.log 'build pack: %s', event.path
+            
             filePath = path.dirname event.path
             # console.log event.path
             packTask filePath, filter
