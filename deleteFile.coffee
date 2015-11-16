@@ -32,13 +32,3 @@ module.exports = (filePath) ->
         .fail (err) ->
             # console.log err
             callback null, file
-
-        # # 采用同步操作删除
-        # try
-        #     stats = fs.statSync filePath
-        #     # 删除目录
-        #     fs.rmdirSync filePath if stats and stats.isDirectory()
-        # catch e
-        #     console.info e
-
-        # callback null, file

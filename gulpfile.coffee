@@ -93,9 +93,17 @@ packTask = (filePath) ->
 ###
  * 编译模板文件
 ###
-tplTask = (filePath) ->
+tplTask = (filePath, packPath) ->
+    baseName = path.basename filePath
+
     gulp.src filePath
+    .pipe deleteFile(path.join(packPath, './tpl', baseName))
     .pipe tpl.build()
+    .pipe md5(6)
+    .pipe gulp.dest(path.join(packPath, './tpl'))
+    .pipe requirejs.rebuild((baseName) ->
+        'tpl/' + baseName.split('.')[0]
+    )
 
 
 ###
@@ -138,12 +146,7 @@ buildAllTpl = (config) ->
 
     # 构建开始
     buildPath srcPath, (v)->
-        tplTask path.join srcPath, v
-        .pipe md5(6)
-        .pipe gulp.dest(path.join(packPath, './tpl'))
-        .pipe requirejs.rebuild((baseName) ->
-            'tpl/' + baseName.split('.')[0]
-        )
+        tplTask path.join(srcPath, v), packPath
 
 
 ###
@@ -206,5 +209,14 @@ gulp.task 'watch', ->
 
         gulp.watch packPath, (event) ->
             filePath = path.dirname event.path
-            console.log event.path
+            # console.log event.path
             packTask filePath
+
+        # 编译模板文件
+        if config.tplBuild
+            tplPath = path.join sourePath, config.tpl, '**/*.html'
+            tplBuildPath = path.join sourePath, config.pack, '../'
+
+            gulp.watch tplPath, (event) ->
+                filePath = path.dirname event.path
+                tplTask filePath, tplBuildPath
