@@ -1,6 +1,5 @@
 ###
  * gulp file 配置
- * 
  * @author jackie Lin <dashi_lin@163.com>
 ###
 
@@ -15,8 +14,7 @@ config = require './config'
 rename = require './rename'
 # 处理 requirejs 信息
 requirejs = require './require'
-# 过滤器
-gulpFilter = require 'gulp-filter'
+
 # js 打包
 pack = require './pack'
 # tpl 打包

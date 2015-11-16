@@ -1,13 +1,12 @@
 {
   "name": "gis",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "F2E build tool",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/JackieLin/gis.git",
-    "web": "https://github.com/JackieLin/gis"
+    "url": "git+https://github.com/JackieLin/gis.git"
   },
-  "main": "./bin/gis.js",
+  "main": "gulpfile.js",
   "bin": {
     "gis": "./bin/gis.js"
   },
