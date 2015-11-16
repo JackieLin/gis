@@ -47,12 +47,17 @@ getConfig = (sourePath='')->
  *     [{'widget/src': ***}, ***]
  * @return {Array}
 ###
-getExcludeList = (roadMap)->
+getExcludeList = (config={})->
+    roadMap = config.roadMap or []
+    packPath = config.pack or ''
+    sourePath = config.sourePath or ''
+    
     _.chain roadMap
     .map (item) ->
         basePath = item.path
         item.exclude = (item.exclude or []).map (v, k)->
-            path.join basePath, v
+            # console.log v
+            path.join sourePath, packPath, basePath, v
 
         item
 
@@ -64,19 +69,19 @@ getExcludeList = (roadMap)->
 ###
 packFilter = (config={})->
     # 过滤列表
-    exports.packFilter = getExcludeList config.roadMap if not exports.packFilter and config.roadMap
-    exports.packFilter
+    packFilter = getExcludeList config if not exports.packFilter and config.roadMap
+    packFilter
 
 
 ###
  * js 打包任务
  * @param {String} filePath 文件目录所在路径
 ###
-packTask = (filePath) ->
+packTask = (filePath, filter) ->
     srcPath = path.dirname filePath
     # console.log srcPath
     gulp.src filePath
-        .pipe pack.combineFile(packFilter())
+        .pipe pack.combineFile(filter)
         .pipe deleteFile(path.join(srcPath, './dist'))
         .pipe gulp.dest(path.join(srcPath, './dist'))
         .pipe uglify()
@@ -129,11 +134,11 @@ packAll = (config)->
     srcPath = path.join config.sourePath, config.pack
 
     # 过滤列表
-    packFilter config
+    filter = packFilter config
 
     # 构建开始
     buildPath srcPath, (v)->
-        packTask path.join srcPath, v, 'src'
+        packTask path.join(srcPath, v, 'src'), filter
 
 
 ###
@@ -206,11 +211,13 @@ gulp.task 'watch', ->
     initTask sourePath
     .then (config) =>
         packPath = path.join sourePath, config.pack, '**/src/*.js'
+        # 过滤列表
+        filter = packFilter config
 
         gulp.watch packPath, (event) ->
             filePath = path.dirname event.path
             # console.log event.path
-            packTask filePath
+            packTask filePath, filter
 
         # 编译模板文件
         if config.tplBuild

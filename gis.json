@@ -3,15 +3,10 @@
     "pack": "./js/pack",
     "roadMap": [
         {
-            "path": "widget/src",
-            "exclude": ["aaa.js", "bbb.js", "ccc.js"]
+            "path": "./common/src",
+            "exclude": ["aaa.js"]
         }
     ],
-
-    "//": "指定包的版本,注：如果没有指定，修改那个版本，就使用那个版本",
-    "packVersion": {
-        "mcore": "1.0.4"
-    },
 
     "sass": "./style/sass",
 
@@ -20,11 +15,6 @@
 
     "//": "tpl需不需要编译",
     "tplBuild": true,
-
-    "//": "sprite目录",
-    "sprite": "./style/sprite_src",
-    "spriteImg" : "./style/sprite",
-    "spriteLess" : "./style/less",
 
     "//": "requireJS 的配置",
     "requireConfig": {

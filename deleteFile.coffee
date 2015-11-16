@@ -31,4 +31,6 @@ module.exports = (filePath) ->
 
         .fail (err) ->
             # console.log err
-            callback null, file
+            FS.makeDirectory filePath
+            .then ->
+                callback null, file
