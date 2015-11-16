@@ -1,27 +1,27 @@
 {
   "name": "gis",
   "version": "0.0.1",
-  "description": "build tool",
+  "description": "F2E build tool",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/vfasky/fbuild.git",
-    "web": "https://github.com/vfasky/fbuild"
+    "url": "git+https://github.com/JackieLin/gis.git",
+    "web": "https://github.com/JackieLin/gis"
   },
-  "main": "./index.js",
+  "main": "./bin/gis.js",
   "bin": {
-    "fbuild": "./bin/gis.js"
+    "gis": "./bin/gis.js"
   },
   "scripts": {
-    "test": ""
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
+    "F2E",
     "build",
     "tool"
   ],
-  "author": {
-    "name": "dashi_lin@163.com"
-  },
+  "author": "jackie Lin <dashi_lin@163.com>",
   "license": "MIT",
+
   "dependencies": {
     "gulp": "^3.8.11",
     "gulp-util": "^3.0.7",
@@ -34,33 +34,7 @@
     "yargs": "^3.6.0"
   },
   "bugs": {
-    "url": "https://github.com/vfasky/fbuild/issues"
+    "url": "https://github.com/JackieLin/gis/issues"
   },
-  "homepage": "https://github.com/vfasky/fbuild#readme",
-  "_id": "fbuild@2.0.11",
-  "_shasum": "2e9faa492a71e4b3a5859a5945a6a01f7701b82a",
-  "_from": "fbuild@*",
-  "_npmVersion": "2.9.1",
-  "_nodeVersion": "0.12.3",
-  "_npmUser": {
-    "name": "jackie Lin",
-    "email": "dashi_lin@163.com"
-  },
-  "dist": {
-    "shasum": "2e9faa492a71e4b3a5859a5945a6a01f7701b82a",
-    "size": 7993,
-    "noattachment": false,
-    "tarball": "http://registry.npm.taobao.org/fbuild/download/fbuild-2.0.11.tgz"
-  },
-  "maintainers": [
-    {
-      "name": "jackie Lin",
-      "email": "dashi_lin@163.com"
-    }
-  ],
-  "directories": {},
-  "publish_time": 1434358548304,
-  "_cnpm_publish_time": 1434358548304,
-  "_resolved": "http://registry.npm.taobao.org/fbuild/download/fbuild-2.0.11.tgz",
-  "readme": "ERROR: No README data found!"
+  "homepage": "https://github.com/JackieLin/gis#readme"
 }
