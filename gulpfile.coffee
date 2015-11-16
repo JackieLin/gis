@@ -33,6 +33,9 @@ uglify = require 'gulp-uglify'
 # md5
 md5 = require "gulp-md5"
 
+# 浏览器
+browserSync = require('browser-sync').create()
+
 ###
  * 获取配置文件对象
  * @return Promise
@@ -51,7 +54,7 @@ getExcludeList = (config={})->
     roadMap = config.roadMap or []
     packPath = config.pack or ''
     sourePath = config.sourePath or ''
-    
+
     _.chain roadMap
     .map (item) ->
         basePath = item.path
@@ -100,7 +103,7 @@ packTask = (filePath, filter) ->
 ###
 tplTask = (filePath, packPath) ->
     baseName = path.basename filePath
-
+    
     gulp.src filePath
     .pipe deleteFile(path.join(packPath, './tpl', baseName))
     .pipe tpl.build()
@@ -152,6 +155,22 @@ buildAllTpl = (config) ->
     # 构建开始
     buildPath srcPath, (v)->
         tplTask path.join(srcPath, v), packPath
+
+
+###
+ * 监听模板的变化
+ * @param {String} tplPath 模板路径
+ * @param {String} tplBuildPath 模板保存路径
+ * @param {Boolean} [browserReload] 是否刷新浏览器
+###
+watchTpl = (tplPath, tplBuildPath, browserReload=false)->
+    gulp.watch tplPath, (event) ->
+        filePath = path.dirname event.path
+        # return tplTask filePath, tplBuildPath if not browserReload
+        # (tplTask filePath, tplBuildPath
+        #     .pipe browserSync.stream()
+        # ) if browserReload
+        tplTask filePath, tplBuildPath
 
 
 ###
@@ -214,6 +233,12 @@ gulp.task 'watch', ->
         # 过滤列表
         filter = packFilter config
 
+        # start http server
+        (browserSync.init
+            server: 
+                baseDir: sourePath
+        ) if config.browserReload
+
         gulp.watch packPath, (event) ->
             filePath = path.dirname event.path
             # console.log event.path
@@ -224,6 +249,7 @@ gulp.task 'watch', ->
             tplPath = path.join sourePath, config.tpl, '**/*.html'
             tplBuildPath = path.join sourePath, config.pack, '../'
 
-            gulp.watch tplPath, (event) ->
-                filePath = path.dirname event.path
-                tplTask filePath, tplBuildPath
+            watchTpl tplPath, tplBuildPath, config.browserReload if not config.browserReload
+            
+            (watchTpl tplPath, tplBuildPath, config.browserReload
+             .on 'change', browserSync.reload) if config.browserReload

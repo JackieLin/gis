@@ -31,6 +31,7 @@ module.exports = (filePath) ->
 
         .fail (err) ->
             # console.log err
-            FS.makeDirectory filePath
+            # tpl 需要判断父目录是否存在
+            FS.makeTree filePath
             .then ->
                 callback null, file

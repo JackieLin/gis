@@ -16,6 +16,9 @@
     "//": "tpl需不需要编译",
     "tplBuild": true,
 
+    "//": "是否需要浏览器加载刷新",
+    "browserReload": false,
+
     "//": "requireJS 的配置",
     "requireConfig": {
         "baseUrl": "static/",
