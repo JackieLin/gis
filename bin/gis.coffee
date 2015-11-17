@@ -1,7 +1,4 @@
-###
- *  命令行工具
- *  @author jackie Lin <dashi_lin@163.com>
-###
+`#!/usr/bin/env node`
 
 'use strict'
 path = require 'path'

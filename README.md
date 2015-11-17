@@ -1,8 +1,6 @@
-## gis ( 前端构建工具 )
+## gis ( 前端构建工具 )
 
 > 单页应用的前端构建工具
-
-[![npm version](https://badge.fury.io/js/gis.svg)](https://badge.fury.io/js/gis)
 
 ## gis 简介
 
@@ -19,6 +17,10 @@ gis 是一整套完整，系统的[前端集成解决方案](https://en.wikipedi
 
 ## 安装
 
+```
+npm install gis -g
+```
+	
 ## DEMO
 
 ## 如何使用

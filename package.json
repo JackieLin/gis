@@ -1,6 +1,6 @@
 {
   "name": "gis",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "F2E build tool",
   "repository": {
     "type": "git",
