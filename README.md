@@ -25,6 +25,8 @@ gis 是一整套完整，系统的[前端集成解决方案](https://en.wikipedi
 
 ## DEMO
 
+**[gis-demo](https://github.com/JackieLin/gis-demo)**
+
 ## 如何使用
 
 ### 1. 建立目录
