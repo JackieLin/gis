@@ -85,6 +85,9 @@ packTask = (filePath, filter) ->
         .pipe pack.combineFile(filter)
         .pipe deleteFile(path.join(srcPath, './dist'))
         .pipe gulp.dest(path.join(srcPath, './dist'))
+        .pipe requirejs.rebuildDev((baseName) ->
+            baseName.split('.')[0]
+        )
         .pipe uglify()
         .pipe rename((file) ->
             file.path = file.path.replace 'all.js', 'all.min.js'

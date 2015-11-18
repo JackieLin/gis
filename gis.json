@@ -15,6 +15,11 @@
     "//": "是否需要浏览器加载刷新",
     "browserReload": false,
 
+    "//": "requireJs 额外配置",
+    "requireOption": {
+        "relativepath": "./"
+    },
+
     "//": "requireJS 的配置",
     "requireConfig": {
         "baseUrl": "./",

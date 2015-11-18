@@ -52,14 +52,48 @@ exports.setConfig = (projectConfig) ->
 
 ###
  * 写入配置文件
+ * @param {Function} method getConfig || getDevConfig
 ###
-writeConfigFile = ->
+writeConfigFile = (configFilePath, method=->)->
     sourePath = config.sourePath
-    production = FS.join sourePath, config.configFile.production
-    dev = FS.join sourePath, config.configFile.dev
+    # production = FS.join sourePath, config.configFile.production
+    # dev = FS.join sourePath, config.configFile.dev
+    configFile = FS.join sourePath, configFilePath
 
-    FS.write production, generator(getConfig(config.requireConfig))
-    FS.write dev, generator(getDevConfig(config.requireConfig))
+    FS.write configFile, generator(method(config.requireConfig))
+    # FS.write dev, generator(getDevConfig(config.requireConfig))
+
+
+###
+ * 获取 requireJs paths 相对路径
+###
+getRelativePath = ->
+    requireOption = config.requireOption or {}
+    cwd = requireOption.cwd or config.requireObj.baseUrl
+    path.join config.sourePath, cwd
+
+
+###
+ * 生成配置信息
+###
+writeConfig = (filePath, fileKey=->) ->
+    baseName = path.basename filePath, '.js'
+    key = fileKey baseName
+
+    config.requireConfig.paths[key] = path.join path.relative(getRelativePath(), filePath), '../', baseName
+
+
+###
+ * 重新生成 config dev 信息
+###
+exports.rebuildDev = (fileKey) ->
+    through2.obj (file, enc, callback) ->
+        writeConfig file.path, fileKey
+        
+        # 重新生成生产环境写入配置文件
+        writeConfigFile config.configFile.dev, getDevConfig
+
+        callback null, file
 
 
 ###
@@ -67,13 +101,10 @@ writeConfigFile = ->
 ###
 exports.rebuild = (fileKey)->
     through2.obj (file, enc, callback) ->
-        baseName = path.basename file.path, '.js'
-        key = fileKey baseName
-
-        config.requireConfig.paths[key] = './' + path.join path.relative(config.requireObj.baseUrl or '', file.path), '../', baseName
+        writeConfig file.path, fileKey
         
-        # 重新写入配置文件
-        writeConfigFile()
+        # 重新生成生产环境写入配置文件
+        writeConfigFile config.configFile.production, getConfig
 
         callback null, file
 
