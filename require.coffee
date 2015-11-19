@@ -84,16 +84,32 @@ writeConfig = (filePath, fileKey=->) ->
 
 
 ###
+ * 读取生成配置文件
+###
+rebuildConfig = (configPath, filePath, fileKey, method, done=->)->
+    sourePath = config.sourePath
+    configFilePath = path.join sourePath, configPath
+
+    readConfigFile configFilePath, (obj)->
+        # console.log obj
+        for k, v of obj
+            config.requireConfig.paths[k] = v
+
+        writeConfig filePath, fileKey
+        
+        # 重新生成生产环境写入配置文件
+        writeConfigFile configPath, method
+
+        done()
+
+
+###
  * 重新生成 config dev 信息
 ###
 exports.rebuildDev = (fileKey) ->
     through2.obj (file, enc, callback) ->
-        writeConfig file.path, fileKey
-        
-        # 重新生成生产环境写入配置文件
-        writeConfigFile config.configFile.dev, getDevConfig
-
-        callback null, file
+        rebuildConfig config.configFile.dev, file.path, fileKey, getDevConfig, ->
+            callback null, file
 
 
 ###
@@ -101,12 +117,35 @@ exports.rebuildDev = (fileKey) ->
 ###
 exports.rebuild = (fileKey)->
     through2.obj (file, enc, callback) ->
-        writeConfig file.path, fileKey
-        
-        # 重新生成生产环境写入配置文件
-        writeConfigFile config.configFile.production, getConfig
+        rebuildConfig config.configFile.production, file.path, fileKey, getConfig, ->
+            callback null, file
 
-        callback null, file
+###
+ * 获取 Requirejs 配置对象
+###
+getRequireConfigObj = (configString) ->
+    configString = configString.replace 'requirejs.config(', ''
+    configString = configString.replace ');', ''
+    
+    JSON.parse configString
+
+
+###
+ * 设置路径信息
+###
+getPathList = (content)->
+    content.paths or {}
+
+###
+ * 读取配置文件信息
+###
+readConfigFile = (configFile, done=->) ->
+    FS.stat configFile
+    .then (stat) ->
+        throw new Error '%s is not a string', configFile if not stat.isFile()
+        FS.read configFile
+    .then (content) ->
+        done getPathList(getRequireConfigObj(content))
 
 
 exports.getDevConfig = getDevConfig

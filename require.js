@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, config, generator, getConfig, getDevConfig, getRelativePath, init, path, through2, writeConfig, writeConfigFile;
+var FS, config, generator, getConfig, getDevConfig, getPathList, getRelativePath, getRequireConfigObj, init, path, readConfigFile, rebuildConfig, through2, writeConfig, writeConfigFile;
 
 through2 = require('through2');
 
@@ -106,14 +106,38 @@ writeConfig = function(filePath, fileKey) {
 
 
 /*
+ * 读取生成配置文件
+ */
+
+rebuildConfig = function(configPath, filePath, fileKey, method, done) {
+  var configFilePath, sourePath;
+  if (done == null) {
+    done = function() {};
+  }
+  sourePath = config.sourePath;
+  configFilePath = path.join(sourePath, configPath);
+  return readConfigFile(configFilePath, function(obj) {
+    var k, v;
+    for (k in obj) {
+      v = obj[k];
+      config.requireConfig.paths[k] = v;
+    }
+    writeConfig(filePath, fileKey);
+    writeConfigFile(configPath, method);
+    return done();
+  });
+};
+
+
+/*
  * 重新生成 config dev 信息
  */
 
 exports.rebuildDev = function(fileKey) {
   return through2.obj(function(file, enc, callback) {
-    writeConfig(file.path, fileKey);
-    writeConfigFile(config.configFile.dev, getDevConfig);
-    return callback(null, file);
+    return rebuildConfig(config.configFile.dev, file.path, fileKey, getDevConfig, function() {
+      return callback(null, file);
+    });
   });
 };
 
@@ -124,9 +148,48 @@ exports.rebuildDev = function(fileKey) {
 
 exports.rebuild = function(fileKey) {
   return through2.obj(function(file, enc, callback) {
-    writeConfig(file.path, fileKey);
-    writeConfigFile(config.configFile.production, getConfig);
-    return callback(null, file);
+    return rebuildConfig(config.configFile.production, file.path, fileKey, getConfig, function() {
+      return callback(null, file);
+    });
+  });
+};
+
+
+/*
+ * 获取 Requirejs 配置对象
+ */
+
+getRequireConfigObj = function(configString) {
+  configString = configString.replace('requirejs.config(', '');
+  configString = configString.replace(');', '');
+  return JSON.parse(configString);
+};
+
+
+/*
+ * 设置路径信息
+ */
+
+getPathList = function(content) {
+  return content.paths || {};
+};
+
+
+/*
+ * 读取配置文件信息
+ */
+
+readConfigFile = function(configFile, done) {
+  if (done == null) {
+    done = function() {};
+  }
+  return FS.stat(configFile).then(function(stat) {
+    if (!stat.isFile()) {
+      throw new Error('%s is not a string', configFile);
+    }
+    return FS.read(configFile);
+  }).then(function(content) {
+    return done(getPathList(getRequireConfigObj(content)));
   });
 };
 
