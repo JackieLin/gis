@@ -31,6 +31,8 @@ uglify = require 'gulp-uglify'
 # md5
 md5 = require "gulp-md5"
 
+gutil = require 'gulp-util'
+
 # 浏览器
 browserSync = require('browser-sync').create()
 
@@ -166,7 +168,8 @@ buildAllTpl = (config) ->
 ###
 watchTpl = (tplPath, tplBuildPath, browserReload=false)->
     gulp.watch tplPath, (event) ->
-        console.log 'build tpl: %s', event.path
+        gutil.log gutil.colors.green('build tpl: ', event.path)
+        # console.log 'build tpl: %s', event.path
 
         filePath = path.dirname event.path
         tplTask filePath, tplBuildPath
@@ -226,7 +229,7 @@ gulp.task 'rebuild', ->
 
 
 gulp.task 'watch', ->
-    sourePath = argv.path    
+    sourePath = argv.path
     throw new Error 'init task: path is null' if not sourePath
 
     initTask sourePath
@@ -242,7 +245,7 @@ gulp.task 'watch', ->
         ) if config.browserReload
 
         gulp.watch packPath, (event) ->
-            console.log 'build pack: %s', event.path
+            gutil.log gutil.colors.yellow('build pack: ', event.path)
             
             filePath = path.dirname event.path
             # console.log event.path

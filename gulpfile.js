@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, _, argv, browserSync, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watchTpl;
+var FS, _, argv, browserSync, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, gutil, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watchTpl;
 
 gulp = require('gulp');
 
@@ -34,6 +34,8 @@ through2 = require('through2');
 uglify = require('gulp-uglify');
 
 md5 = require("gulp-md5");
+
+gutil = require('gulp-util');
 
 browserSync = require('browser-sync').create();
 
@@ -188,7 +190,7 @@ watchTpl = function(tplPath, tplBuildPath, browserReload) {
   }
   return gulp.watch(tplPath, function(event) {
     var filePath;
-    console.log('build tpl: %s', event.path);
+    gutil.log(gutil.colors.green('build tpl: ', event.path));
     filePath = path.dirname(event.path);
     return tplTask(filePath, tplBuildPath);
   });
@@ -275,7 +277,7 @@ gulp.task('watch', function() {
       }
       gulp.watch(packPath, function(event) {
         var filePath;
-        console.log('build pack: %s', event.path);
+        gutil.log(gutil.colors.yellow('build pack: ', event.path));
         filePath = path.dirname(event.path);
         return packTask(filePath, filter);
       });

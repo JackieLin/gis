@@ -1,4 +1,4 @@
-`#!/usr/bin/env node`
+# `#!/usr/bin/env node`
 
 'use strict'
 path = require 'path'
@@ -16,22 +16,25 @@ proc
 if 'init' in _
     proc = spawn 'gulp', ['init', '--path=' + sourePath], 
             cwd: __dirname
+            stdio: 'inherit'
 
 else if 'rebuild' in _
     # 重新构建项目
     proc = spawn 'gulp', ['rebuild', '--path=' + sourePath],
         cwd: __dirname
+        stdio: 'inherit'
 
 else
     # 默认情况
-    proc = spawn 'gulp', ['watch', '--path=' + sourePath],
+    proc = spawn 'gulp', ['watch', '--path=' + sourePath, '--colors'],
         cwd: __dirname
+        stdio: 'inherit'
 
 
 # 输出信息和错误信息
-if proc
-    proc.stdout.on 'data', (data)->
-        console.log data.toString()
+# if proc
+#     proc.stdout.on 'data', (data)->
+#         console.log data.toString()
 
-    proc.stderr.on 'data', (data)->
-        console.log data.toString()
+#     proc.stderr.on 'data', (data)->
+#         console.log data.toString()
