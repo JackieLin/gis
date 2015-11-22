@@ -9,6 +9,7 @@ gulp = require 'gulp'
 argv = require('yargs').argv
 FS = require 'q-io/fs'
 path = require 'path'
+watch = require 'gulp-watch'
 # 配置文件信息
 config = require './config'
 rename = require './rename'
@@ -167,7 +168,7 @@ buildAllTpl = (config) ->
  * @param {Boolean} [browserReload] 是否刷新浏览器
 ###
 watchTpl = (tplPath, tplBuildPath, browserReload=false)->
-    gulp.watch tplPath, (event) ->
+    watch tplPath, (event) ->
         gutil.log gutil.colors.green('build tpl: ', event.path)
         # console.log 'build tpl: %s', event.path
 
@@ -244,7 +245,7 @@ gulp.task 'watch', ->
                 baseDir: sourePath
         ) if config.browserReload
 
-        gulp.watch packPath, (event) ->
+        watch packPath, (event) ->
             gutil.log gutil.colors.yellow('build pack: ', event.path)
             
             filePath = path.dirname event.path

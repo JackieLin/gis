@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, _, argv, browserSync, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, gutil, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watchTpl;
+var FS, _, argv, browserSync, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, gutil, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watch, watchTpl;
 
 gulp = require('gulp');
 
@@ -14,6 +14,8 @@ argv = require('yargs').argv;
 FS = require('q-io/fs');
 
 path = require('path');
+
+watch = require('gulp-watch');
 
 config = require('./config');
 
@@ -188,7 +190,7 @@ watchTpl = function(tplPath, tplBuildPath, browserReload) {
   if (browserReload == null) {
     browserReload = false;
   }
-  return gulp.watch(tplPath, function(event) {
+  return watch(tplPath, function(event) {
     var filePath;
     gutil.log(gutil.colors.green('build tpl: ', event.path));
     filePath = path.dirname(event.path);
@@ -275,7 +277,7 @@ gulp.task('watch', function() {
           }
         });
       }
-      gulp.watch(packPath, function(event) {
+      watch(packPath, function(event) {
         var filePath;
         gutil.log(gutil.colors.yellow('build pack: ', event.path));
         filePath = path.dirname(event.path);
