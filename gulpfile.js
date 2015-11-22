@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, _, argv, browserSync, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, gutil, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watch, watchTpl;
+var FS, _, argv, browserSync, buildAll, buildAllTpl, buildPath, config, deleteFile, getConfig, getExcludeList, gulp, gutil, initTask, md5, pack, packAll, packFilter, packTask, path, rename, requirejs, through2, tpl, tplTask, uglify, watch, watchTpl;
 
 gulp = require('gulp');
 
@@ -91,9 +91,9 @@ packFilter = function(config) {
     config = {};
   }
   if (!exports.packFilter && config.roadMap) {
-    packFilter = getExcludeList(config);
+    exports.packFilter = getExcludeList(config);
   }
-  return packFilter;
+  return exports.packFilter;
 };
 
 
@@ -218,6 +218,18 @@ initTask = function(sourePath) {
 
 
 /*
+ * 重新编译所有文件
+ */
+
+buildAll = function(config) {
+  packAll(config);
+  if (config.tplBuild) {
+    return buildAllTpl(config);
+  }
+};
+
+
+/*
  * 执行初始化任务
  * @example
  *     gulp init --path=path
@@ -233,13 +245,13 @@ gulp.task('init', function() {
     config.sourePath = sourePath;
     requirejs.setConfig(config);
     return FS.makeTree(path.join(sourePath, config.pack)).then(function() {
-      return FS.makeTree(path.join(sourePath, config.sass));
+      return FS.makeTree(path.join(sourePath, config.sass || ''));
     }).then(function() {
       return FS.makeTree(path.join(sourePath, config.tpl));
     }).then(function() {
       return FS.copy(path.join(__dirname, 'gis.json'), path.join(sourePath, 'gis.json'));
     }).then(function() {
-      return requirejs.writeConfigFile();
+      return requirejs.initConfigFile();
     });
   });
 });
@@ -251,11 +263,8 @@ gulp.task('rebuild', function() {
     throw new Error('init task: path is null');
   }
   return initTask(sourePath).then(function(config) {
-    requirejs.writeConfigFile();
-    packAll(config);
-    if (config.tplBuild) {
-      return buildAllTpl(config);
-    }
+    requirejs.initConfigFile();
+    return buildAll(config);
   });
 });
 
@@ -268,6 +277,8 @@ gulp.task('watch', function() {
   return initTask(sourePath).then((function(_this) {
     return function(config) {
       var filter, packPath, tplBuildPath, tplPath;
+      gutil.log(gutil.colors.blue('项目正在进行初始化编译..........'));
+      buildAll(config);
       packPath = path.join(sourePath, config.pack, '**/src/*.js');
       filter = packFilter(config);
       if (config.browserReload) {

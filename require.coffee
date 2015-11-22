@@ -51,17 +51,25 @@ exports.setConfig = (projectConfig) ->
 
 
 ###
+ * 初始化配置文件信息
+###
+initConfigFile = ->
+    sourePath = config.sourePath
+    production = FS.join sourePath, config.configFile.production
+    dev = FS.join sourePath, config.configFile.dev
+    
+    FS.write production, generator(getConfig(config.requireConfig))
+    FS.write dev, generator(getDevConfig(config.requireConfig))
+
+###
  * 写入配置文件
  * @param {Function} method getConfig || getDevConfig
 ###
 writeConfigFile = (configFilePath, method=->)->
     sourePath = config.sourePath
-    # production = FS.join sourePath, config.configFile.production
-    # dev = FS.join sourePath, config.configFile.dev
     configFile = FS.join sourePath, configFilePath
 
     FS.write configFile, generator(method(config.requireConfig))
-    # FS.write dev, generator(getDevConfig(config.requireConfig))
 
 
 ###
@@ -152,3 +160,4 @@ exports.getDevConfig = getDevConfig
 exports.getConfig = getConfig
 exports.generator = generator
 exports.writeConfigFile = writeConfigFile
+exports.initConfigFile = initConfigFile

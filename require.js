@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, config, generator, getConfig, getDevConfig, getPathList, getRelativePath, getRequireConfigObj, init, path, readConfigFile, rebuildConfig, through2, writeConfig, writeConfigFile;
+var FS, config, generator, getConfig, getDevConfig, getPathList, getRelativePath, getRequireConfigObj, init, initConfigFile, path, readConfigFile, rebuildConfig, through2, writeConfig, writeConfigFile;
 
 through2 = require('through2');
 
@@ -59,6 +59,20 @@ init = function(config) {
 exports.setConfig = function(projectConfig) {
   config = projectConfig;
   return init(config);
+};
+
+
+/*
+ * 初始化配置文件信息
+ */
+
+initConfigFile = function() {
+  var dev, production, sourePath;
+  sourePath = config.sourePath;
+  production = FS.join(sourePath, config.configFile.production);
+  dev = FS.join(sourePath, config.configFile.dev);
+  FS.write(production, generator(getConfig(config.requireConfig)));
+  return FS.write(dev, generator(getDevConfig(config.requireConfig)));
 };
 
 
@@ -200,3 +214,5 @@ exports.getConfig = getConfig;
 exports.generator = generator;
 
 exports.writeConfigFile = writeConfigFile;
+
+exports.initConfigFile = initConfigFile;

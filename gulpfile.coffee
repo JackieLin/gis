@@ -73,8 +73,9 @@ getExcludeList = (config={})->
 ###
 packFilter = (config={})->
     # 过滤列表
-    packFilter = getExcludeList config if not exports.packFilter and config.roadMap
-    packFilter
+    exports.packFilter = getExcludeList config if not exports.packFilter and config.roadMap
+    
+    exports.packFilter
 
 
 ###
@@ -193,6 +194,14 @@ initTask = (sourePath) ->
 
 
 ###
+ * 重新编译所有文件
+###
+buildAll = (config)->
+    packAll config
+    buildAllTpl config if config.tplBuild
+
+
+###
  * 执行初始化任务
  * @example
  *     gulp init --path=path
@@ -207,13 +216,13 @@ gulp.task 'init', ->
 
         FS.makeTree path.join sourePath, config.pack
         .then ->
-            FS.makeTree path.join sourePath, config.sass
+            FS.makeTree path.join sourePath, config.sass or ''
         .then ->
             FS.makeTree path.join sourePath, config.tpl
         .then ->
             FS.copy path.join(__dirname, 'gis.json'), path.join(sourePath, 'gis.json')
         .then ->
-            requirejs.writeConfigFile()
+            requirejs.initConfigFile()
 
 
 gulp.task 'rebuild', ->
@@ -223,10 +232,9 @@ gulp.task 'rebuild', ->
     initTask sourePath
     .then (config) ->
         # 重新生成 config 文件
-        requirejs.writeConfigFile()
+        requirejs.initConfigFile()
         
-        packAll config
-        buildAllTpl config if config.tplBuild
+        buildAll config
 
 
 gulp.task 'watch', ->
@@ -235,6 +243,10 @@ gulp.task 'watch', ->
 
     initTask sourePath
     .then (config) =>
+        gutil.log gutil.colors.blue('项目正在进行初始化编译..........')
+
+        buildAll config
+
         packPath = path.join sourePath, config.pack, '**/src/*.js'
         # 过滤列表
         filter = packFilter config
