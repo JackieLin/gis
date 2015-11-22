@@ -268,6 +268,38 @@ gulp.task('rebuild', function() {
   });
 });
 
+
+/*
+ * 修改测试环境发布地址
+ */
+
+gulp.task('test', function() {
+  var sourePath;
+  sourePath = argv.path;
+  if (!sourePath) {
+    throw new Error('init task: path is null');
+  }
+  return initTask(sourePath).then(function(config) {
+    return requirejs.changeBaseUrl(config.requireOption.testUrl || '');
+  });
+});
+
+
+/*
+ * 修改正式环境发布地址
+ */
+
+gulp.task('product', function() {
+  var sourePath;
+  sourePath = argv.path;
+  if (!sourePath) {
+    throw new Error('init task: path is null');
+  }
+  return initTask(sourePath).then(function(config) {
+    return requirejs.changeBaseUrl(config.requireOption.produceUrl || '');
+  });
+});
+
 gulp.task('watch', function() {
   var sourePath;
   sourePath = argv.path;
@@ -278,6 +310,7 @@ gulp.task('watch', function() {
     return function(config) {
       var filter, packPath, tplBuildPath, tplPath;
       gutil.log(gutil.colors.blue('项目正在进行初始化编译..........'));
+      requirejs.initConfigFile();
       buildAll(config);
       packPath = path.join(sourePath, config.pack, '**/src/*.js');
       filter = packFilter(config);

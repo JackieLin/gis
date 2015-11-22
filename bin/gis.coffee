@@ -24,9 +24,21 @@ else if 'rebuild' in _
         cwd: __dirname
         stdio: 'inherit'
 
+else if 'test' in _
+    # 重新构建项目
+    proc = spawn 'gulp', ['test', '--path=' + sourePath],
+        cwd: __dirname
+        stdio: 'inherit'
+
+else if 'product' in _
+    # 重新构建项目
+    proc = spawn 'gulp', ['product', '--path=' + sourePath],
+        cwd: __dirname
+        stdio: 'inherit'
+
 else
     # 默认情况
-    proc = spawn 'gulp', ['watch', '--path=' + sourePath, '--colors'],
+    proc = spawn 'gulp', ['watch', '--path=' + sourePath],
         cwd: __dirname
         stdio: 'inherit'
 

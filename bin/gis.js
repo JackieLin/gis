@@ -25,8 +25,18 @@ if (indexOf.call(_, 'init') >= 0) {
     cwd: __dirname,
     stdio: 'inherit'
   });
+} else if (indexOf.call(_, 'test') >= 0) {
+  proc = spawn('gulp', ['test', '--path=' + sourePath], {
+    cwd: __dirname,
+    stdio: 'inherit'
+  });
+} else if (indexOf.call(_, 'product') >= 0) {
+  proc = spawn('gulp', ['product', '--path=' + sourePath], {
+    cwd: __dirname,
+    stdio: 'inherit'
+  });
 } else {
-  proc = spawn('gulp', ['watch', '--path=' + sourePath, '--colors'], {
+  proc = spawn('gulp', ['watch', '--path=' + sourePath], {
     cwd: __dirname,
     stdio: 'inherit'
   });

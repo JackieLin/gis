@@ -5,7 +5,7 @@
  * @author jackie Lin <dashi_lin@163.com>
  */
 'use strict';
-var FS, config, generator, getConfig, getDevConfig, getPathList, getRelativePath, getRequireConfigObj, init, initConfigFile, path, readConfigFile, rebuildConfig, through2, writeConfig, writeConfigFile;
+var FS, changeBaseUrl, config, generator, getConfig, getDevConfig, getPathList, getRelativePath, getRequireConfigObj, init, initConfigFile, path, readConfigFile, rebuildConfig, through2, writeConfig, writeConfigFile;
 
 through2 = require('through2');
 
@@ -77,6 +77,23 @@ initConfigFile = function() {
 
 
 /*
+ * 修改发布地址
+ */
+
+changeBaseUrl = function(url) {
+  var dev, production, sourePath;
+  sourePath = config.sourePath;
+  production = FS.join(sourePath, config.configFile.production);
+  dev = FS.join(sourePath, config.configFile.dev);
+  return readConfigFile(dev, function(content) {
+    content.baseUrl = url;
+    FS.write(dev, generator(getDevConfig(content)));
+    return FS.write(production, generator(getConfig(content)));
+  });
+};
+
+
+/*
  * 写入配置文件
  * @param {Function} method getConfig || getDevConfig
  */
@@ -130,8 +147,9 @@ rebuildConfig = function(configPath, filePath, fileKey, method, done) {
   }
   sourePath = config.sourePath;
   configFilePath = path.join(sourePath, configPath);
-  return readConfigFile(configFilePath, function(obj) {
-    var k, v;
+  return readConfigFile(configFilePath, function(content) {
+    var k, obj, v;
+    obj = getPathList(content);
     for (k in obj) {
       v = obj[k];
       config.requireConfig.paths[k] = v;
@@ -203,7 +221,7 @@ readConfigFile = function(configFile, done) {
     }
     return FS.read(configFile);
   }).then(function(content) {
-    return done(getPathList(getRequireConfigObj(content)));
+    return done(getRequireConfigObj(content));
   });
 };
 
@@ -216,3 +234,5 @@ exports.generator = generator;
 exports.writeConfigFile = writeConfigFile;
 
 exports.initConfigFile = initConfigFile;
+
+exports.changeBaseUrl = changeBaseUrl;

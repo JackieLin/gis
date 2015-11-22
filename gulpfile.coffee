@@ -74,7 +74,7 @@ getExcludeList = (config={})->
 packFilter = (config={})->
     # 过滤列表
     exports.packFilter = getExcludeList config if not exports.packFilter and config.roadMap
-    
+
     exports.packFilter
 
 
@@ -236,6 +236,29 @@ gulp.task 'rebuild', ->
         
         buildAll config
 
+###
+ * 修改测试环境发布地址
+###
+gulp.task 'test', ->
+    sourePath = argv.path
+    throw new Error 'init task: path is null' if not sourePath
+
+    initTask sourePath
+    .then (config) ->
+        requirejs.changeBaseUrl config.requireOption.testUrl or ''
+
+
+###
+ * 修改正式环境发布地址
+###
+gulp.task 'product', ->
+    sourePath = argv.path
+    throw new Error 'init task: path is null' if not sourePath
+
+    initTask sourePath
+    .then (config) ->
+        requirejs.changeBaseUrl config.requireOption.produceUrl or ''
+
 
 gulp.task 'watch', ->
     sourePath = argv.path
@@ -244,6 +267,8 @@ gulp.task 'watch', ->
     initTask sourePath
     .then (config) =>
         gutil.log gutil.colors.blue('项目正在进行初始化编译..........')
+
+        requirejs.initConfigFile()
 
         buildAll config
 

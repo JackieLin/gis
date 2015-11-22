@@ -57,9 +57,24 @@ initConfigFile = ->
     sourePath = config.sourePath
     production = FS.join sourePath, config.configFile.production
     dev = FS.join sourePath, config.configFile.dev
-    
+
     FS.write production, generator(getConfig(config.requireConfig))
     FS.write dev, generator(getDevConfig(config.requireConfig))
+
+
+###
+ * 修改发布地址
+###
+changeBaseUrl = (url)->
+    sourePath = config.sourePath
+    production = FS.join sourePath, config.configFile.production
+    dev = FS.join sourePath, config.configFile.dev
+
+    readConfigFile dev, (content)->
+        content.baseUrl = url
+        FS.write dev, generator(getDevConfig(content))
+        FS.write production, generator(getConfig(content))
+
 
 ###
  * 写入配置文件
@@ -98,7 +113,10 @@ rebuildConfig = (configPath, filePath, fileKey, method, done=->)->
     sourePath = config.sourePath
     configFilePath = path.join sourePath, configPath
 
-    readConfigFile configFilePath, (obj)->
+    readConfigFile configFilePath, (content)->
+        # 获取路径信息
+        obj = getPathList content
+
         # console.log obj
         for k, v of obj
             config.requireConfig.paths[k] = v
@@ -153,7 +171,7 @@ readConfigFile = (configFile, done=->) ->
         throw new Error '%s is not a string', configFile if not stat.isFile()
         FS.read configFile
     .then (content) ->
-        done getPathList(getRequireConfigObj(content))
+        done getRequireConfigObj(content)
 
 
 exports.getDevConfig = getDevConfig
@@ -161,3 +179,4 @@ exports.getConfig = getConfig
 exports.generator = generator
 exports.writeConfigFile = writeConfigFile
 exports.initConfigFile = initConfigFile
+exports.changeBaseUrl = changeBaseUrl

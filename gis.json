@@ -17,11 +17,17 @@
 
     "//": "requireJs 额外配置",
     "requireOption": {
-        "relativepath": "./"
+        "//": "静态资源相对路径",
+        "cwd": "./",
+        "//": "测试环境地址",
+        "testUrl": "",
+        "//": "正式环境地址",
+        "produceUrl": ""
     },
 
     "//": "requireJS 的配置",
     "requireConfig": {
+        "//": "开发环境地址",
         "baseUrl": "./",
         "paths": {}
     },
